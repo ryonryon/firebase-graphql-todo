@@ -12,10 +12,20 @@ admin.initializeApp({
 const typeDefs = gql`
   type Query {
     workses: [Works]
+    getWorksByName(name: String!): Works
   }
   type Works {
     name: String!
     thumb: String!
+  }
+
+  type Mutation {
+    createWorks(works: worksInput): Works
+  }
+
+  input worksInput {
+    name: String
+    thumb: String
   }
 `;
 
@@ -32,6 +42,32 @@ const resolvers = {
         .collection("works")
         .get();
       return workses.docs.map(works => works.data()) as Works[];
+    },
+
+    async getWorksByName(_: any, args: any, __: any, ___: any) {
+      const worksData = await admin
+        .firestore()
+        .collection("works")
+        .doc("yC2qmXpNyT8GpZpD0PIL")
+        .get();
+      return worksData.data() as Works;
+    }
+  },
+  Mutation: {
+    async createWorks(_: any, args: any, __: any, ___: any) {
+      console.log(args.works.name);
+      console.log(args.works.thumb);
+      try {
+        await admin
+          .firestore()
+          .collection("works")
+          .add({
+            name: args.works.name,
+            thumb: args.works.thumb
+          });
+      } catch (err) {
+        console.error(err);
+      }
     }
   }
 };
