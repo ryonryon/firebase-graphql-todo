@@ -1,13 +1,7 @@
 import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
 import { ApolloServer, gql } from "apollo-server-cloud-functions";
 
-var serviceAccount = require("../../serviceAccountKey.json");
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://todo-web-ryotogashi.firebaseio.com"
-});
+import firestore from "../singleton/firestore";
 
 const typeDefs = gql`
   type Query {
@@ -37,16 +31,12 @@ interface Works {
 const resolvers = {
   Query: {
     async workses() {
-      const workses = await admin
-        .firestore()
-        .collection("works")
-        .get();
+      const workses = await firestore.collection("works").get();
       return workses.docs.map(works => works.data()) as Works[];
     },
 
     async getWorksByName(_: any, args: any, __: any, ___: any) {
-      const worksData = await admin
-        .firestore()
+      const worksData = await firestore
         .collection("works")
         .doc("yC2qmXpNyT8GpZpD0PIL")
         .get();
@@ -55,16 +45,11 @@ const resolvers = {
   },
   Mutation: {
     async createWorks(_: any, args: any, __: any, ___: any) {
-      console.log(args.works.name);
-      console.log(args.works.thumb);
       try {
-        await admin
-          .firestore()
-          .collection("works")
-          .add({
-            name: args.works.name,
-            thumb: args.works.thumb
-          });
+        await firestore.collection("works").add({
+          name: args.works.name,
+          thumb: args.works.thumb
+        });
       } catch (err) {
         console.error(err);
       }
