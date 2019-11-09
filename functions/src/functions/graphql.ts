@@ -1,8 +1,9 @@
 import * as functions from "firebase-functions";
 import { ApolloServer } from "apollo-server-cloud-functions";
-
-import typeDefs from "../graphql/schema";
+import { importSchema } from "graphql-import";
 import resolvers from "../graphql/resolvers";
+
+const typeDefs = importSchema("./src/graphql/schema.graphql");
 
 const server = new ApolloServer({
   typeDefs,
